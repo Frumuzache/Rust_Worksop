@@ -29,73 +29,10 @@ use embassy_stm32::peripherals::TIM2;
 use embassy_stm32::timer::{Ch1, Ch2};
 use embassy_stm32::gpio::OutputType;
 
-const LEN: usize = 195;
+// The original song is about 114 BPM
+// You might want to change your TEMPO constant:
+// const TEMPO: u64 = 114;
 
-const SONG: [(Option<Note>, i8); LEN] = [
-    (Some(Note::C5), 4), // Measure 1
-    (Some(Note::F5), 4), (Some(Note::F5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8), (Some(Note::E5), 8),
-    (Some(Note::D5), 4), (Some(Note::D5), 4), (Some(Note::D5), 4),
-    (Some(Note::G5), 4), (Some(Note::G5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8),
-    (Some(Note::E5), 4), (Some(Note::C5), 4), (Some(Note::C5), 4),
-    (Some(Note::A5), 4), (Some(Note::A5), 8), (Some(Note::AS5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8),
-    (Some(Note::F5), 4), (Some(Note::D5), 4), (Some(Note::C5), 8), (Some(Note::C5), 8),
-    (Some(Note::D5), 4), (Some(Note::G5), 4), (Some(Note::E5), 4),
-
-    (Some(Note::F5), 2), (Some(Note::C5), 4), // Measure 8
-    (Some(Note::F5), 4), (Some(Note::F5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8), (Some(Note::E5), 8),
-    (Some(Note::D5), 4), (Some(Note::D5), 4), (Some(Note::D5), 4),
-    (Some(Note::G5), 4), (Some(Note::G5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8),
-    (Some(Note::E5), 4), (Some(Note::C5), 4), (Some(Note::C5), 4),
-    (Some(Note::A5), 4), (Some(Note::A5), 8), (Some(Note::AS5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8),
-    (Some(Note::F5), 4), (Some(Note::D5), 4), (Some(Note::C5), 8), (Some(Note::C5), 8),
-    (Some(Note::D5), 4), (Some(Note::G5), 4), (Some(Note::E5), 4),
-    (Some(Note::F5), 2), (Some(Note::C5), 4),
-
-    (Some(Note::F5), 4), (Some(Note::F5), 4), (Some(Note::F5), 4), // Measure 17
-    (Some(Note::E5), 2), (Some(Note::E5), 4),
-    (Some(Note::F5), 4), (Some(Note::E5), 4), (Some(Note::D5), 4),
-    (Some(Note::C5), 2), (Some(Note::A5), 4),
-    (Some(Note::AS5), 4), (Some(Note::A5), 4), (Some(Note::G5), 4),
-    (Some(Note::C6), 4), (Some(Note::C5), 4), (Some(Note::C5), 8), (Some(Note::C5), 8),
-    (Some(Note::D5), 4), (Some(Note::G5), 4), (Some(Note::E5), 4),
-    (Some(Note::F5), 2), (Some(Note::C5), 4),
-    (Some(Note::F5), 4), (Some(Note::F5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8), (Some(Note::E5), 8),
-    (Some(Note::D5), 4), (Some(Note::D5), 4), (Some(Note::D5), 4),
-
-    (Some(Note::G5), 4), (Some(Note::G5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8), // Measure 27
-    (Some(Note::E5), 4), (Some(Note::C5), 4), (Some(Note::C5), 4),
-    (Some(Note::A5), 4), (Some(Note::A5), 8), (Some(Note::AS5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8),
-    (Some(Note::F5), 4), (Some(Note::D5), 4), (Some(Note::C5), 8), (Some(Note::C5), 8),
-    (Some(Note::D5), 4), (Some(Note::G5), 4), (Some(Note::E5), 4),
-    (Some(Note::F5), 2), (Some(Note::C5), 4),
-    (Some(Note::F5), 4), (Some(Note::F5), 4), (Some(Note::F5), 4),
-    (Some(Note::E5), 2), (Some(Note::E5), 4),
-    (Some(Note::F5), 4), (Some(Note::E5), 4), (Some(Note::D5), 4),
-
-    (Some(Note::C5), 2), (Some(Note::A5), 4), // Measure 36
-    (Some(Note::AS5), 4), (Some(Note::A5), 4), (Some(Note::G5), 4),
-    (Some(Note::C6), 4), (Some(Note::C5), 4), (Some(Note::C5), 8), (Some(Note::C5), 8),
-    (Some(Note::D5), 4), (Some(Note::G5), 4), (Some(Note::E5), 4),
-    (Some(Note::F5), 2), (Some(Note::C5), 4),
-    (Some(Note::F5), 4), (Some(Note::F5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8), (Some(Note::E5), 8),
-    (Some(Note::D5), 4), (Some(Note::D5), 4), (Some(Note::D5), 4),
-    (Some(Note::G5), 4), (Some(Note::G5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8),
-    (Some(Note::E5), 4), (Some(Note::C5), 4), (Some(Note::C5), 4),
-
-    (Some(Note::A5), 4), (Some(Note::A5), 8), (Some(Note::AS5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8), // Measure 45
-    (Some(Note::F5), 4), (Some(Note::D5), 4), (Some(Note::C5), 8), (Some(Note::C5), 8),
-    (Some(Note::D5), 4), (Some(Note::G5), 4), (Some(Note::E5), 4),
-    (Some(Note::F5), 2), (Some(Note::C5), 4),
-    (Some(Note::F5), 4), (Some(Note::F5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8), (Some(Note::E5), 8),
-    (Some(Note::D5), 4), (Some(Note::D5), 4), (Some(Note::D5), 4),
-    (Some(Note::G5), 4), (Some(Note::G5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8), (Some(Note::F5), 8),
-    (Some(Note::E5), 4), (Some(Note::C5), 4), (Some(Note::C5), 4),
-
-    (Some(Note::A5), 4), (Some(Note::A5), 8), (Some(Note::AS5), 8), (Some(Note::A5), 8), (Some(Note::G5), 8), // Measure 53
-    (Some(Note::F5), 4), (Some(Note::D5), 4), (Some(Note::C5), 8), (Some(Note::C5), 8),
-    (Some(Note::D5), 4), (Some(Note::G5), 4), (Some(Note::E5), 4),
-    (Some(Note::F5), 2), (None, 4), // 'REST,4' becomes (None, 4)
-];
 
 
 #[embassy_executor::main]

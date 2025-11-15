@@ -29,6 +29,49 @@ use embassy_stm32::peripherals::TIM2;
 use embassy_stm32::timer::{Ch1, Ch2};
 use embassy_stm32::gpio::OutputType;
 
+
+/*
+const LEN: usize = 26;
+const SONG: [(Option<Note>, i8); LEN] = [
+    // "Never gonna give you up"
+    (Some(Note::G4), 8), 
+    (Some(Note::A4), 8), 
+    (Some(Note::C5), 8), 
+    (Some(Note::A4), 8), 
+    (Some(Note::E5), 4), 
+    (Some(Note::E5), 8), 
+    (Some(Note::D5), 4),
+
+    // "Never gonna let you down"
+    (Some(Note::G4), 8), 
+    (Some(Note::A4), 8), 
+    (Some(Note::C5), 8), 
+    (Some(Note::A4), 8), 
+    (Some(Note::D5), 4), 
+    (Some(Note::D5), 8), 
+    (Some(Note::C5), 4),
+
+    // "Never gonna run around..."
+    (Some(Note::G4), 8), 
+    (Some(Note::A4), 8), 
+    (Some(Note::C5), 8), 
+    (Some(Note::A4), 8), 
+    (Some(Note::B4), 4), 
+    (Some(Note::C5), 8), 
+    (Some(Note::A4), 4),
+
+    // "...and desert you"
+    (Some(Note::G4), 8), 
+    (Some(Note::G4), 8), 
+    (Some(Note::F4), 4), 
+    (Some(Note::E4), 4),
+
+    // Rest before it loops
+    (None, 2)
+];
+*/
+
+
 const LEN: usize = 195;
 
 const SONG: [(Option<Note>, i8); LEN] = [
