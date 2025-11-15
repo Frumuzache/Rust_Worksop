@@ -2,6 +2,8 @@
 /// An enum with standard piano notes,
 /// where each variant's value is the note's
 /// frequency
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Note {
     B0 = 31,
     C1 = 33,
